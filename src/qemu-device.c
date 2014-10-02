@@ -279,3 +279,24 @@ static  bool xenbattery_device_parse_options (struct device_model *devmodel,
 }
 
 qemu_device_init (xenbattery, xenbattery_device_parse_options);
+
+static  bool xen_pci_pt_device_parse_options (struct device_model *devmodel,
+                                              const char *device)
+{
+    char *hostaddr = NULL;
+    bool res = false;
+
+    hostaddr = retrieve_option (devmodel, device, "hostaddr", xen_pci_pt_hostaddr);
+
+    SPAWN_ADD_ARGL (devmodel, end_xen_pci_pt, "-device");
+    SPAWN_ADD_ARGL (devmodel, end_xen_pci_pt,
+                    "xen-pci-passthrough,hostaddr=%s", hostaddr);
+
+    res = true;
+end_xen_pci_pt:
+    free(hostaddr);
+xen_pci_pt_hostaddr:
+    return res;
+}
+
+qemu_device_init (xen_pci_pt, xen_pci_pt_device_parse_options);
