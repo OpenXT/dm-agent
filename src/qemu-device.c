@@ -267,3 +267,15 @@ static  bool xenmou_device_parse_options (struct device_model *devmodel,
 }
 
 qemu_device_init (xenmou, xenmou_device_parse_options);
+
+static  bool xenbattery_device_parse_options (struct device_model *devmodel,
+                                              const char *device)
+{
+    (void) device;
+
+    SPAWN_ADD_ARG (devmodel, "-xenbattery");
+
+    return true;
+}
+
+qemu_device_init (xenbattery, xenbattery_device_parse_options);
