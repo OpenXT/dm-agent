@@ -254,3 +254,16 @@ drivefile:
 }
 
 qemu_device_init (drive, drive_device_parse_options);
+
+static  bool xenmou_device_parse_options (struct device_model *devmodel,
+                                          const char *device)
+{
+    (void) device;
+
+    SPAWN_ADD_ARG (devmodel, "-device");
+    SPAWN_ADD_ARG (devmodel, "xenmou");
+
+    return true;
+}
+
+qemu_device_init (xenmou, xenmou_device_parse_options);

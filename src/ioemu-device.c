@@ -238,3 +238,14 @@ static bool drive_device_parse_options (struct device_model *devmodel,
 }
 
 ioemu_device_init (drive, drive_device_parse_options);
+
+static  bool xenmou_device_parse_options (struct device_model *devmodel,
+                                          const char *device)
+{
+    (void) devmodel;
+    (void) device;
+
+    return true;
+}
+
+ioemu_device_init (xenmou, xenmou_device_parse_options);
