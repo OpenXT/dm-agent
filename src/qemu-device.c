@@ -118,27 +118,29 @@ qemu_device_init (svga, svga_device_parse_options);
 static bool cdrom_device_parse_options (struct device_model *devmodel,
                                         const char *device)
 {
-    char *cdrom = device_option (devmodel, device, "device");
-    bool res = true;
+    char *devicepath;
+    char *option = NULL;
+    bool res = false;
 
-    /* Skip cdrom for the moment */
-    return true;
+    option = device_option (devmodel, device, "option");
+    devicepath = retrieve_option (devmodel, device, "device", cdromdevice);
 
-    if (!cdrom)
-    {
-        device_error (devmodel, device, "missing device option to create cdrom device");
-        return false;
+    if (!option) {
+        SPAWN_ADD_ARG (devmodel, "-cdrom");
+        SPAWN_ADD_ARG (devmodel, "%s", devicepath);
+    } else {
+        SPAWN_ADD_ARG (devmodel, "-drive");
+        SPAWN_ADD_ARG (devmodel,
+                       "file=%s:%s,media=cdrom,if=atapi-pt,format=raw",
+                       dm_agent_in_stubdom() ? "atapi-pt-v4v" : "atapi-pt-local", devicepath);
+
+        free (option);
     }
 
-    res = spawn_add_argument (devmodel, "-cdrom");
-    if (!res)
-        goto end_cdrom;
+    res = true;
 
-    res = spawn_add_argument (devmodel, cdrom);
-
-end_cdrom:
-    free (cdrom);
-
+    free (devicepath);
+cdromdevice:
     return res;
 }
 
