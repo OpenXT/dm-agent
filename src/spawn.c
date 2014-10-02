@@ -30,7 +30,8 @@
 #include "util.h"
 
 #define ARGS_BATCH 10
-#define QEMU_NEW_PATH "/usr/bin/qemu-system-i386"
+#define QEMU_PATH "/usr/bin/qemu-dm-wrapper"
+#define QEMU_STUBDOM_PATH "/usr/bin/qemu-system-i386"
 #define IOEMU_PATH "/usr/sbin/svirt-interpose"
 #define IOEMU_STUBDOM_PATH "/usr/lib/xen/bin/qemu-dm"
 #define WAITPID_TIMER 2000 /* In millisecond */
@@ -123,7 +124,13 @@ static bool spawn_init (void)
 
 static bool spawn_qemu_args (struct device_model *devmodel)
 {
-    SPAWN_ADD_ARG (devmodel, QEMU_NEW_PATH);
+    if (dm_agent_in_stubdom ())
+        SPAWN_ADD_ARG (devmodel, QEMU_STUBDOM_PATH);
+    else
+    {
+        SPAWN_ADD_ARG (devmodel, QEMU_PATH);
+        SPAWN_ADD_ARG (devmodel, "%u", devmodel->domain->domid);
+    }
 
     SPAWN_ADD_ARG (devmodel, "-xen-domid");
     SPAWN_ADD_ARG (devmodel, "%u", devmodel->domain->domid);
