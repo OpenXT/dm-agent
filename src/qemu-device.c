@@ -101,14 +101,12 @@ qemu_device_init (acpi, acpi_device_parse_options);
 static bool svga_device_parse_options (struct device_model *devmodel,
                                        const char *device)
 {
-    return true;
-
     (void) device;
 
-    SPAWN_ADD_ARG (devmodel, "-videoram");
-    SPAWN_ADD_ARG (devmodel, "16");
-    SPAWN_ADD_ARG (devmodel, "-surfman");
-    SPAWN_ADD_ARG (devmodel, "-std-vga");
+    SPAWN_ADD_ARG (devmodel, "-vga");
+    SPAWN_ADD_ARG (devmodel, "std");
+    SPAWN_ADD_ARG (devmodel, "-display");
+    SPAWN_ADD_ARG (devmodel, "surfman");
 
     return true;
 }
