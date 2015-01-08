@@ -152,6 +152,11 @@ static bool spawn_qemu_args (struct device_model *devmodel)
     SPAWN_ADD_ARG (devmodel, "-smp");
     SPAWN_ADD_ARG (devmodel, "%u", devmodel->domain->vcpus);
 
+    if (devmodel->domain->boot && strcmp(devmodel->domain->boot, "")) {
+        SPAWN_ADD_ARG (devmodel, "-boot");
+        SPAWN_ADD_ARG (devmodel, "%s", devmodel->domain->boot);
+    }
+
     return true;
 }
 
