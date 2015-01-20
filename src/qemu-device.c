@@ -154,21 +154,19 @@ static bool net_device_parse_options (struct device_model *devmodel,
     char *name;
     bool res = false;
 
-    /* Fix need to handle bdf */
-
     id = retrieve_option (devmodel, device, "id", netid);
     model = retrieve_option (devmodel, device, "model", netmodel);
     bridge = retrieve_option (devmodel, device, "bridge", netbridge);
     mac = retrieve_option (devmodel, device, "mac", netmac);
     name = retrieve_option (devmodel, device, "name", netname);
 
-    SPAWN_ADD_ARGL (devmodel, end_net, "-device");
-    SPAWN_ADD_ARGL (devmodel, end_net, "%s,id=%s,netdev=%s,mac=%s",
-                    model, name, device, mac);
+    SPAWN_ADD_ARGL (devmodel, end_net, "-net");
+    SPAWN_ADD_ARGL (devmodel, end_net, "nic,vlan=%s,name=%s,macaddr=%s,model=%s",
+                    id, name, mac, model);
 
-    SPAWN_ADD_ARGL (devmodel, end_net, "-netdev");
-    SPAWN_ADD_ARGL (devmodel, end_net, "type=bridge,id=%s,br=%s",
-                    device, bridge);
+    SPAWN_ADD_ARGL (devmodel, end_net, "-net");
+    SPAWN_ADD_ARGL (devmodel, end_net, "tap,vlan=%s,ifname=tap%u.%s,script=/etc/qemu/qemu-ifup",
+                    id, devmodel->domain->domid, id);
 
     res = true;
 
