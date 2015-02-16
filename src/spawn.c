@@ -30,7 +30,8 @@
 #include "util.h"
 
 #define ARGS_BATCH 10
-#define QEMU_PATH "/usr/bin/qemu-dm-wrapper"
+#define QEMU_PATH "/usr/sbin/svirt-interpose"
+/* #define QEMU_PATH "/usr/bin/qemu-dm-wrapper" */
 #define QEMU_STUBDOM_PATH "/usr/bin/qemu-system-i386"
 #define IOEMU_PATH "/usr/sbin/svirt-interpose"
 #define IOEMU_STUBDOM_PATH "/usr/lib/xen/bin/qemu-dm"
