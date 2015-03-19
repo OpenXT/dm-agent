@@ -144,8 +144,7 @@ static bool spawn_qemu_args (struct device_model *devmodel)
                    devmodel->dmid);
 
     SPAWN_ADD_ARG (devmodel, "-machine");
-    SPAWN_ADD_ARG (devmodel, "xenfv,xen_dmid=%u,xen_default_dev=on",
-                   devmodel->dmid);
+    SPAWN_ADD_ARG (devmodel, "xenfv");
 
     SPAWN_ADD_ARG (devmodel, "-m");
     SPAWN_ADD_ARG (devmodel, "%lu", devmodel->domain->memkb >> 10);
@@ -229,7 +228,7 @@ static bool spawn_create (struct device_model *devmodel, unsigned int type)
     if (spawn->type == SPAWN_QEMU_OLD)
         res = asprintf (&tmp, "%s/dms/qemu-old", dompath);
     else
-        res = asprintf (&tmp, "%s/dms/%u/state", dompath, devmodel->dmid);
+        res = asprintf (&tmp, "/local/domain/0/device-model/%u/state", devmodel->domain->domid);
     free (dompath);
 
     if (res == -1)
