@@ -223,21 +223,32 @@ static bool drive_device_parse_options (struct device_model *devmodel,
     char *media;
     char *format;
     char *index;
+    char *readonly;
     bool res = false;
 
     file = retrieve_option (devmodel, device, "file", drivefile);
     media = retrieve_option (devmodel, device, "media", drivemedia);
     format = retrieve_option (devmodel, device, "format", driveformat);
     index = retrieve_option (devmodel, device, "index", driveindex);
+    readonly = retrieve_option (devmodel, device, "readonly", drivereadonly);
 
     SPAWN_ADD_ARGL (devmodel, end_drive, "-drive");
-    SPAWN_ADD_ARGL (devmodel, end_drive,
+
+    // readonly hard disks are scsi, cdrom and writeable disks are ide
+    if ((strcmp(readonly, "off") == 0) || (strcmp(media, "cdrom") == 0)) {
+        SPAWN_ADD_ARGL (devmodel, end_drive,
                     "file=%s,if=ide,index=%s,media=%s,format=%s",
                     file, index, media, format);
-
+    } else {
+        SPAWN_ADD_ARGL (devmodel, end_drive,
+                    "file=%s,if=scsi,index=%s,media=%s,format=%s,readonly=on",
+                    file, index, media, format);
+    }
     res = true;
 
 end_drive:
+    free (readonly);
+drivereadonly:
     free (index);
 driveindex:
     free (format);
