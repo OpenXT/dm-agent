@@ -326,5 +326,6 @@ AC_CONFIG_MACRO_DIR([m4])
 AM_CONFIG_HEADER(src/config.h)
 
 AC_CONFIG_FILES([Makefile
+                 scripts/Makefile
                  src/Makefile])
 AC_OUTPUT

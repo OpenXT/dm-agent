@@ -101,14 +101,12 @@ qemu_device_init (acpi, acpi_device_parse_options);
 static bool svga_device_parse_options (struct device_model *devmodel,
                                        const char *device)
 {
-    return true;
-
     (void) device;
 
-    SPAWN_ADD_ARG (devmodel, "-videoram");
-    SPAWN_ADD_ARG (devmodel, "16");
-    SPAWN_ADD_ARG (devmodel, "-surfman");
-    SPAWN_ADD_ARG (devmodel, "-std-vga");
+    SPAWN_ADD_ARG (devmodel, "-vga");
+    SPAWN_ADD_ARG (devmodel, "std");
+    SPAWN_ADD_ARG (devmodel, "-display");
+    SPAWN_ADD_ARG (devmodel, "surfman");
 
     return true;
 }
@@ -118,27 +116,29 @@ qemu_device_init (svga, svga_device_parse_options);
 static bool cdrom_device_parse_options (struct device_model *devmodel,
                                         const char *device)
 {
-    char *cdrom = device_option (devmodel, device, "device");
-    bool res = true;
+    char *devicepath;
+    char *option = NULL;
+    bool res = false;
 
-    /* Skip cdrom for the moment */
-    return true;
+    option = device_option (devmodel, device, "option");
+    devicepath = retrieve_option (devmodel, device, "device", cdromdevice);
 
-    if (!cdrom)
-    {
-        device_error (devmodel, device, "missing device option to create cdrom device");
-        return false;
+    if (!option) {
+        SPAWN_ADD_ARG (devmodel, "-cdrom");
+        SPAWN_ADD_ARG (devmodel, "%s", devicepath);
+    } else {
+        SPAWN_ADD_ARG (devmodel, "-drive");
+        SPAWN_ADD_ARG (devmodel,
+                       "file=%s:%s,media=cdrom,if=atapi-pt,format=raw",
+                       dm_agent_in_stubdom() ? "atapi-pt-v4v" : "atapi-pt-local", devicepath);
+
+        free (option);
     }
 
-    res = spawn_add_argument (devmodel, "-cdrom");
-    if (!res)
-        goto end_cdrom;
+    res = true;
 
-    res = spawn_add_argument (devmodel, cdrom);
-
-end_cdrom:
-    free (cdrom);
-
+    free (devicepath);
+cdromdevice:
     return res;
 }
 
@@ -154,21 +154,19 @@ static bool net_device_parse_options (struct device_model *devmodel,
     char *name;
     bool res = false;
 
-    /* Fix need to handle bdf */
-
     id = retrieve_option (devmodel, device, "id", netid);
     model = retrieve_option (devmodel, device, "model", netmodel);
     bridge = retrieve_option (devmodel, device, "bridge", netbridge);
     mac = retrieve_option (devmodel, device, "mac", netmac);
     name = retrieve_option (devmodel, device, "name", netname);
 
-    SPAWN_ADD_ARGL (devmodel, end_net, "-device");
-    SPAWN_ADD_ARGL (devmodel, end_net, "%s,id=%s,netdev=%s,mac=%s",
-                    model, name, device, mac);
+    SPAWN_ADD_ARGL (devmodel, end_net, "-net");
+    SPAWN_ADD_ARGL (devmodel, end_net, "nic,vlan=%s,name=%s,macaddr=%s,model=%s",
+                    id, name, mac, model);
 
-    SPAWN_ADD_ARGL (devmodel, end_net, "-netdev");
-    SPAWN_ADD_ARGL (devmodel, end_net, "type=bridge,id=%s,br=%s",
-                    device, bridge);
+    SPAWN_ADD_ARGL (devmodel, end_net, "-net");
+    SPAWN_ADD_ARGL (devmodel, end_net, "tap,vlan=%s,ifname=tap%u.%s,script=/etc/qemu/qemu-ifup",
+                    id, devmodel->domain->domid, id);
 
     res = true;
 
@@ -225,21 +223,32 @@ static bool drive_device_parse_options (struct device_model *devmodel,
     char *media;
     char *format;
     char *index;
+    char *readonly;
     bool res = false;
 
     file = retrieve_option (devmodel, device, "file", drivefile);
     media = retrieve_option (devmodel, device, "media", drivemedia);
     format = retrieve_option (devmodel, device, "format", driveformat);
     index = retrieve_option (devmodel, device, "index", driveindex);
+    readonly = retrieve_option (devmodel, device, "readonly", drivereadonly);
 
     SPAWN_ADD_ARGL (devmodel, end_drive, "-drive");
-    SPAWN_ADD_ARGL (devmodel, end_drive,
+
+    // readonly hard disks are scsi, cdrom and writeable disks are ide
+    if ((strcmp(readonly, "off") == 0) || (strcmp(media, "cdrom") == 0)) {
+        SPAWN_ADD_ARGL (devmodel, end_drive,
                     "file=%s,if=ide,index=%s,media=%s,format=%s",
                     file, index, media, format);
-
+    } else {
+        SPAWN_ADD_ARGL (devmodel, end_drive,
+                    "file=%s,if=scsi,index=%s,media=%s,format=%s,readonly=on",
+                    file, index, media, format);
+    }
     res = true;
 
 end_drive:
+    free (readonly);
+drivereadonly:
     free (index);
 driveindex:
     free (format);
@@ -252,3 +261,49 @@ drivefile:
 }
 
 qemu_device_init (drive, drive_device_parse_options);
+
+static  bool xenmou_device_parse_options (struct device_model *devmodel,
+                                          const char *device)
+{
+    (void) device;
+
+    SPAWN_ADD_ARG (devmodel, "-device");
+    SPAWN_ADD_ARG (devmodel, "xenmou");
+
+    return true;
+}
+
+qemu_device_init (xenmou, xenmou_device_parse_options);
+
+static  bool xenbattery_device_parse_options (struct device_model *devmodel,
+                                              const char *device)
+{
+    (void) device;
+
+    SPAWN_ADD_ARG (devmodel, "-xenbattery");
+
+    return true;
+}
+
+qemu_device_init (xenbattery, xenbattery_device_parse_options);
+
+static  bool xen_pci_pt_device_parse_options (struct device_model *devmodel,
+                                              const char *device)
+{
+    char *hostaddr = NULL;
+    bool res = false;
+
+    hostaddr = retrieve_option (devmodel, device, "hostaddr", xen_pci_pt_hostaddr);
+
+    SPAWN_ADD_ARGL (devmodel, end_xen_pci_pt, "-device");
+    SPAWN_ADD_ARGL (devmodel, end_xen_pci_pt,
+                    "xen-pci-passthrough,hostaddr=%s", hostaddr);
+
+    res = true;
+end_xen_pci_pt:
+    free(hostaddr);
+xen_pci_pt_hostaddr:
+    return res;
+}
+
+qemu_device_init (xen_pci_pt, xen_pci_pt_device_parse_options);
