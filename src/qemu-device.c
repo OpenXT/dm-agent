@@ -127,10 +127,18 @@ static bool cdrom_device_parse_options (struct device_model *devmodel,
         SPAWN_ADD_ARG (devmodel, "-cdrom");
         SPAWN_ADD_ARG (devmodel, "%s", devicepath);
     } else {
+        char *ro = "off"; 
+
+        /* check to see if disk is read-only */
+        if (strcmp(option, "pt-ro-exclusive") == 0) { 
+            ro = "on"; 
+        }
+
         SPAWN_ADD_ARG (devmodel, "-drive");
         SPAWN_ADD_ARG (devmodel,
-                       "file=%s:%s,media=cdrom,if=atapi-pt,format=raw",
-                       dm_agent_in_stubdom() ? "atapi-pt-v4v" : "atapi-pt-local", devicepath);
+                       "file=%s:%s,media=cdrom,if=atapi-pt,format=raw,readonly=%s",
+                       dm_agent_in_stubdom() ? 
+                       "atapi-pt-v4v" : "atapi-pt-local", devicepath, ro);
 
         free (option);
     }
