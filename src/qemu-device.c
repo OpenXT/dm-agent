@@ -1,16 +1,16 @@
 /*
  * Copyright (c) 2013 Citrix Systems, Inc.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -68,19 +68,26 @@ static bool audio_device_parse_options (struct device_model *devmodel,
                                         const char *device)
 {
     char *audio;
+    char *recorder;
     bool res = false;
 
-
-    audio = retrieve_option (devmodel, device, "device", audiodev);
+    audio = retrieve_option (devmodel, device, "device", devaudio);
+    recorder = retrieve_option (devmodel, device, "recorder", recaudio);
 
     SPAWN_ADD_ARGL (devmodel, end_audio, "-soundhw");
     SPAWN_ADD_ARGL (devmodel, end_audio, audio);
 
+    /* If we don't find a "1" we disable audio record */
+    if (strcmp ("1", recorder))
+        SPAWN_ADD_ARGL (devmodel, end_audio, "-disable-audio-rec");
+
     res = true;
 
 end_audio:
+    free (recorder);
+recaudio:
     free (audio);
-audiodev:
+devaudio:
     return res;
 }
 
@@ -127,17 +134,17 @@ static bool cdrom_device_parse_options (struct device_model *devmodel,
         SPAWN_ADD_ARG (devmodel, "-cdrom");
         SPAWN_ADD_ARG (devmodel, "%s", devicepath);
     } else {
-        char *ro = "off"; 
+        char *ro = "off";
 
         /* check to see if disk is read-only */
-        if (strcmp(option, "pt-ro-exclusive") == 0) { 
-            ro = "on"; 
+        if (strcmp(option, "pt-ro-exclusive") == 0) {
+            ro = "on";
         }
 
         SPAWN_ADD_ARG (devmodel, "-drive");
         SPAWN_ADD_ARG (devmodel,
                        "file=%s:%s,media=cdrom,if=atapi-pt,format=raw,readonly=%s",
-                       dm_agent_in_stubdom() ? 
+                       dm_agent_in_stubdom() ?
                        "atapi-pt-v4v" : "atapi-pt-local", devicepath, ro);
 
         free (option);
