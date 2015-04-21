@@ -249,16 +249,16 @@ static bool drive_device_parse_options (struct device_model *devmodel,
 
     SPAWN_ADD_ARGL (devmodel, end_drive, "-drive");
 
-    // readonly hard disks are scsi, cdrom and writeable disks are ide
-    if ((strcmp(readonly, "off") == 0) || (strcmp(media, "cdrom") == 0)) {
+    if ((strcmp(readonly, "on") == 0) || (strcmp(media, "cdrom") == 0)) {
         SPAWN_ADD_ARGL (devmodel, end_drive,
-                    "file=%s,if=ide,index=%s,media=%s,format=%s",
-                    file, index, media, format);
+                "file=%s,if=ide,index=%s,media=%s,format=%s,readonly=on",
+                file, index, media, format);
     } else {
         SPAWN_ADD_ARGL (devmodel, end_drive,
-                    "file=%s,if=scsi,index=%s,media=%s,format=%s,readonly=on",
-                    file, index, media, format);
+                "file=%s,if=ide,index=%s,media=%s,format=%s,readonly=off",
+                file, index, media, format);
     }
+
     res = true;
 
 end_drive:
