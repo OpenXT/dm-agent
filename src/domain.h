@@ -35,6 +35,8 @@ struct domain
     struct event ev_destroy;
     /* amount of domain RAM */
     unsigned long memkb;
+    /* maximum available RAM before the 4G limit. */
+    unsigned long tolum;
     /* number of vpcus */
     unsigned int vcpus;
     /* boot order */

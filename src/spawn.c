@@ -144,7 +144,11 @@ static bool spawn_qemu_args (struct device_model *devmodel)
                    devmodel->dmid);
 
     SPAWN_ADD_ARG (devmodel, "-machine");
-    SPAWN_ADD_ARG (devmodel, "xenfv");
+    if (devmodel->domain->tolum) {
+        SPAWN_ADD_ARG (devmodel, "xenfv,max-ram-below-4g=%#lx", devmodel->domain->tolum);
+    } else {
+        SPAWN_ADD_ARG (devmodel, "xenfv");
+    }
 
     SPAWN_ADD_ARG (devmodel, "-m");
     SPAWN_ADD_ARG (devmodel, "%lu", devmodel->domain->memkb >> 10);
