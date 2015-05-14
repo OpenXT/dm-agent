@@ -172,6 +172,16 @@ static bool domain_get_info (struct domain *domain)
     domain->memkb = atoi (val);
     free (val);
 
+    val = xenstore_read ("%s/memory/tolum", dompath);
+    if (val) {
+        domain_info (domain, "retrieve TOLUM.");
+        domain->tolum = strtoul (val, NULL, 0);
+        domain_info (domain, "TOLUM=%#lx.", domain->tolum);
+        free(val);
+    } else {
+        domain->tolum = 0;
+    }
+
     val = xenstore_read ("%s/platform/vcpu_number", dompath);
     if (!val)
         goto err_get_info;
