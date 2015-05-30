@@ -290,18 +290,17 @@ static  bool xenmou_device_parse_options (struct device_model *devmodel,
 
 qemu_device_init (xenmou, xenmou_device_parse_options);
 
-/* OXT-217 this will be re-used as the xen_acpi_pm param
-static  bool xenbattery_device_parse_options (struct device_model *devmodel,
-                                              const char *device)
+static  bool xen_acpi_pm_device_parse_options (struct device_model *devmodel,
+                                               const char *device)
 {
     (void) device;
 
-    SPAWN_ADD_ARG (devmodel, "-xenbattery");
+    SPAWN_ADD_ARG (devmodel, "-xen-acpi-pm");
 
     return true;
 }
 
-qemu_device_init (xenbattery, xenbattery_device_parse_options);*/
+qemu_device_init (xen_acpi_pm, xen_acpi_pm_device_parse_options);
 
 static  bool xen_pci_pt_device_parse_options (struct device_model *devmodel,
                                               const char *device)

@@ -261,13 +261,12 @@ static  bool xen_pci_pt_device_parse_options (struct device_model *devmodel,
 
 ioemu_device_init (xen_pci_pt, xen_pci_pt_device_parse_options);
 
-/* OXT-217 this will be re-used as the xen_acpi_pm param
-static  bool xenbattery_device_parse_options (struct device_model *devmodel,
-                                              const char *device)
+static  bool xen_acpi_pm_device_parse_options (struct device_model *devmodel,
+                                               const char *device)
 {
     (void) device;
     (void) devmodel;
 
     return true;
 }
-ioemu_device_init (xenbattery, xenbattery_device_parse_options);*/
+ioemu_device_init (xen_acpi_pm, xen_acpi_pm_device_parse_options);
