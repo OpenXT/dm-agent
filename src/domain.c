@@ -19,6 +19,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
+# include <inttypes.h>
 # include "domain.h"
 # include "dm-agent.h"
 # include "util.h"
@@ -118,7 +119,7 @@ void domains_watch (const char *path, void *priv)
 
     (void) priv;
 
-    res = asprintf (&buff, "%s/dms/%%u", dm_agent_get_path ());
+    res = asprintf (&buff, "%s/dms/%%"SCNu16, dm_agent_get_path ());
     if (res == -1)
         return;
 
