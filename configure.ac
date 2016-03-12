@@ -18,13 +18,12 @@
 
 # Prelude.
 AC_PREREQ(2.13)
-AC_INIT()
+m4_include([version.m4])
+AC_INIT([dm-agent], DM_AGENT_VERSION)
 
 LT_INIT
 
-PACKAGE=dm-agent
-
-AM_INIT_AUTOMAKE($PACKAGE,$VERSION)
+AM_INIT_AUTOMAKE([foreign])
 
 # Checks for programs.
 AC_PROG_CC

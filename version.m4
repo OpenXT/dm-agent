@@ -1,0 +1,1 @@
+m4_define([DM_AGENT_VERSION], $VERSION)
