@@ -22,26 +22,6 @@
 
 #define SUBTYPE(s, dev) ((s) << 8) | (dev)
 
-static void xengfx_state (struct device_model *devmodel,
-                          enum dmbus_state state)
-{
-    switch (state)
-    {
-    case DMBUS_CONNECT:
-        devmodel_info (devmodel, "dmbus change state %u", state);
-        device_model_status (devmodel, DEVMODEL_RUNNING);
-        break;
-    /* For the moment we can support surfman reconnection */
-    case DMBUS_DISCONNECT:
-        devmodel_warning (devmodel, "Can't retry to connect to surfman \
-                          with xengfx device");
-        device_model_status (devmodel, DEVMODEL_DIED);
-        break;
-    default:
-        devmodel_info (devmodel, "dmbus change state %u", state);
-    }
-}
-
 static void xenfb_state (struct device_model *devmodel,
                          enum dmbus_state state)
 {
@@ -76,8 +56,6 @@ static void input_state (struct device_model *devmodel,
     }
 }
 
-dmbus_device_init (xengfx, DMBUS_SERVICE_SURFMAN, DEVICE_TYPE_XENGFX,
-                   xengfx_state)
 dmbus_device_init (xenfb, DMBUS_SERVICE_SURFMAN, DEVICE_TYPE_XENFB,
                    xenfb_state)
 dmbus_device_init (input, DMBUS_SERVICE_INPUT, DEVICE_TYPE_INPUT,
