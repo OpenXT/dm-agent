@@ -90,13 +90,6 @@ static void handle_disconnect (struct service *s)
     devmodel_warning (s->devmodel, "remote service disconnected");
 
     s->state (s->devmodel, DMBUS_DISCONNECT);
-    /**
-     * FIXME: hack for xengfx device when surfman died. Don't try to
-     * reconnect.
-     */
-    if (s->devmodel->status == DEVMODEL_DIED)
-        return;
-
     devmodel_info (s->devmodel, "try to reconnect in %u ms", DMBUS_TIMEOUT);
     time.tv_sec = DMBUS_TIMEOUT / 1000;
     time.tv_usec = (DMBUS_TIMEOUT % 1000) * 1000;
