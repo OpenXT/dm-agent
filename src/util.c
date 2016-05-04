@@ -20,9 +20,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
-#ifdef SYSLOG
 #include <syslog.h>
-#endif
 #include "util.h"
 
 static char *prefix = NULL;
@@ -30,17 +28,13 @@ static int log_where = LOG_SYSTEM | LOG_STDERR;
 
 void prefix_set (const char *p)
 {
-#ifdef SYSLOG
     closelog ();
-#endif
     if (prefix)
         free (prefix);
     prefix = strdup (p);
     if (!prefix)
         fatal ("Unable to set a new prefix log");
-#ifdef SYSLOG
     openlog (prefix, LOG_CONS, LOG_USER);
-#endif
 }
 
 int logging (int where)
@@ -52,7 +46,6 @@ int logging (int where)
     return tmp;
 }
 
-#ifdef SYSLOG
 static void message_syslog (loglvl lvl, const char *fmt, va_list ap)
 {
     int syslog_lvl = LOG_DEBUG;
@@ -78,7 +71,6 @@ static void message_syslog (loglvl lvl, const char *fmt, va_list ap)
 
     vsyslog (syslog_lvl, fmt, ap);
 }
-#endif
 
 static void message_stderr (loglvl lvl, const char *fmt, va_list ap)
 {
@@ -100,14 +92,12 @@ void message (loglvl lvl, const char *fmt, ...)
         va_end (ap);
     }
 
-#ifdef SYSLOG
     if (log_where & LOG_SYSTEM)
     {
         va_start (ap, fmt);
         message_syslog (lvl, fmt, ap);
         va_end (ap);
     }
-#endif /* !SYSLOG */
 
     if (lvl == MESSAGE_FATAL)
         abort ();
