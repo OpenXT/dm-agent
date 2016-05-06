@@ -46,21 +46,6 @@ AC_STRUCT_TM
 
 CPPFLAGS="-D_GNU_SOURCE ${CPPFLAGS}"
 
-# Add option to disable dmbus spawn support
-AC_ARG_ENABLE([dmbus],
-              AC_HELP_STRING([--disable-dmbus], [Disable device handle by dmbus]))
-
-case "x$enable_dmbus" in
-    x|xtrue)
-        DMBUS_DEV=yes
-        ;;
-    *)
-        DMBUS_DEV=no
-        ;;
-esac
-
-AM_CONDITIONAL([DMBUSDEV], [test x$DMBUS_DEV = "xyes"])
-
 # Add option to compile for stubdomain
 AC_ARG_ENABLE([syslog],
               AC_HELP_STRING([--disable-syslog], [Write all log on standard output]))
@@ -248,41 +233,6 @@ CPPFLAGS="${ORIG_CPPFLAGS}"
 
 if test "x$have_libxc" = "xfalse"; then
 	AC_MSG_ERROR([where is libxc dude])
-fi
-
-# libdmbus
-
-AC_ARG_WITH([libdmbus],
-            AC_HELP_STRING([--with-libdmbus=PATH], [Path to prefix where libdmbus was installed.]),
-            [LIBDMBUS_PREFIX=$with_libdmbus], [])
-
-case "x$LIBDMBUS_PREFIX" in
-        x|xno|xyes)
-                LIBDMBUS_INC=""
-                LIBDMBUS_LIB="-ldmbus"
-                ;;
-        *)
-                LIBDMBUS_INC="-I${LIBDMBUS_PREFIX}/include"
-                LIBDMBUS_LIB="-L${LIBDMBUS_PREFIX}/lib -ldmbus"
-                ;;
-esac
-
-AC_SUBST(LIBDMBUS_INC)
-AC_SUBST(LIBDMBUS_LIB)
-
-have_libdmbus=true
-
-ORIG_LIBS="${LIBS}"
-ORIG_CPPFLAGS="${CPPFLAGS}"
-	LIBS="${LIBS} ${LIBDMBUS_LIB} ${LIBV4V_LIB}"
-	CPPFLAGS="${CPPFLAGS} ${LIBV4V_INC} ${LIBDMBUS_INC}"
-	AC_CHECK_HEADERS([libdmbus.h], [], [have_libdmbus=false])
-	AC_CHECK_FUNC(dmbus_init, [], [have_libdmbus=false])
-LIBS="${ORIG_LIBS}"
-CPPFLAGS="${ORIG_CPPFLAGS}"
-
-if test "x$have_libdmbus" = "xfalse"; then
-	AC_MSG_ERROR([where is libdmbus dude])
 fi
 
 # libpthread

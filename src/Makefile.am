@@ -17,7 +17,7 @@
 #
 
 
-INCLUDES = ${LIBXENSTORE_INC} ${LIBDMBUS_INC} ${LIBV4V_INC} ${LIBPTHREAD_INC} \
+INCLUDES = ${LIBXENSTORE_INC} ${LIBV4V_INC} ${LIBPTHREAD_INC} \
 		   ${LIBEVENT_INC} ${LIBXC_INC} ${LIBXCXENSTORE_INC}
 
 SRCS = 						\
@@ -31,10 +31,6 @@ SRCS = 						\
 		spawn.c				\
 		util.c				\
 		xenstore.c
-
-if DMBUSDEV
-SRCS += dmbus-device.c dmbus.c
-endif
 
 noinst_HEADERS =					\
 					device.h		\
@@ -51,6 +47,6 @@ noinst_HEADERS =					\
 bin_PROGRAMS = dm-agent
 dm_agent_SOURCES = ${SRCS}
 dm_agent_CFLAGS = -W -Werror -g -Wall
-dm_agent_LDADD = ${LIBDMBUS_LIB} ${LIBV4V_LIB} \
-				 ${LIBEVENT_LIB} ${LIBPTHREAD_LIB} ${LIBXC_LIB} \
-				 ${LIBXCXENSTORE_LIB} ${LIBXENSTORE_LIB}
+dm_agent_LDADD = ${LIBV4V_LIB} \
+		 ${LIBEVENT_LIB} ${LIBPTHREAD_LIB} ${LIBXC_LIB} \
+		 ${LIBXCXENSTORE_LIB} ${LIBXENSTORE_LIB}
