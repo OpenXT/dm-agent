@@ -143,7 +143,7 @@ static bool cdrom_device_parse_options (struct device_model *devmodel,
 
         SPAWN_ADD_ARG (devmodel, "-drive");
         SPAWN_ADD_ARG (devmodel,
-                       "file=%s:%s,media=cdrom,if=atapi-pt,format=raw,readonly=%s",
+                       "file=%s:%s,media=cdrom,if=atapi-pt,format=atapi-pt-fmt,readonly=%s",
                        dm_agent_in_stubdom() ?
                        "atapi-pt-v4v" : "atapi-pt-local", devicepath, ro);
 
