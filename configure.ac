@@ -92,7 +92,7 @@ LIBS="${ORIG_LIBS}"
 CPPFLAGS="${ORIG_CPPFLAGS}"
 
 if test "x$have_libevent" = "xfalse"; then
-        AC_MSG_ERROR([*** At least libev or libevent is required.])
+        AC_MSG_ERROR([*** libevent is required.])
 fi
 
 # libxenstore
