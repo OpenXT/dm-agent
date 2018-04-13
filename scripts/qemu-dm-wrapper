@@ -2,8 +2,7 @@
 
 # Interposer for qemu upstream
 
-DOMID=$1
-shift 1
+DOMID=$2
 
 # configure and use per-vm alsa pcm device with softvol control
 ALSA_VMID=$DOMID
